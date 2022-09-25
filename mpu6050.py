@@ -3,7 +3,10 @@ import smbus
 import math
 import time
 
-power_mgmt_1 = 0x98
+power_mgmt_1 = 0x6b
+power_mgmt_2 = 0x6c
+tmp_out_1 = 0x41
+tmp_out_2 = 0x42
 
 def read_byte(reg):
 	return bus.read_byte_data(address, reg)
@@ -32,13 +35,19 @@ def get_x_rotation(x, y, z):
 	radians = math.atan2(y, dist(y,z))
 	return math.degrees(radians)
 
+def get_temp():
+	raw_temp = read_word(tmp_out_1)
+	actual_temp = (raw_temp/340) + 36.53
+	return actual_temp
+
 
 while True:
 	os.system('cls' if os.name == 'nt' else 'clear')
 	time.sleep(1)
+	print(get_temp())
 	bus = smbus.SMBus(1)
 	address = 0x68
-	bus.write_byte_data(address, power_mgmt_1, 0)
+	bus.write_byte_data(address, power_mgmt_1, 0X00)
 
 	print("Gyro:  \n")
 	gyro_xout = read_word_2c(0x43)
